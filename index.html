@@ -263,6 +263,36 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 .alloc-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--gold),var(--gold-light)); transition:width 1s ease; }
 .alloc-pct { font-size:11px; color:var(--muted); width:30px; text-align:right; }
 
+/* VISION AI */
+#page-ai.active { display:flex; flex-direction:column; padding-bottom:0; }
+.vision-section { flex-shrink:0; padding:12px 16px 0; border-bottom:1px solid var(--border2); }
+.vision-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.vision-title { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:var(--gold-light); }
+.vision-badge { font-size:9px; text-transform:uppercase; letter-spacing:0.1em; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.25); color:var(--gold); padding:2px 7px; border-radius:10px; }
+.vision-upload-btn { display:flex; align-items:center; gap:8px; background:rgba(201,168,76,0.07); border:1px dashed rgba(201,168,76,0.3); border-radius:10px; padding:10px 14px; cursor:pointer; transition:all 0.2s; width:100%; margin-bottom:10px; }
+.vision-upload-btn:hover { background:rgba(201,168,76,0.12); border-color:rgba(201,168,76,0.5); }
+.vision-upload-text { font-size:12px; color:var(--muted); }
+.vision-upload-text strong { color:var(--gold-light); display:block; font-size:13px; margin-bottom:1px; }
+.vision-preview-box { position:relative; border-radius:10px; overflow:hidden; background:var(--input); margin-bottom:10px; display:none; }
+.vision-preview-box img { width:100%; height:130px; object-fit:cover; display:block; }
+.scan-line { position:absolute; top:0; left:0; width:100%; height:3px; background:linear-gradient(90deg, transparent, rgba(201,168,76,0.9), transparent); box-shadow:0 0 12px rgba(201,168,76,0.6); animation:scanDown 1.5s linear 3; }
+@keyframes scanDown { 0%{top:0;} 100%{top:calc(100% - 3px);} }
+.vision-scanning-label { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); background:rgba(6,8,15,0.85); border:1px solid rgba(201,168,76,0.3); color:var(--gold); font-size:11px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap; }
+.vision-result-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px; display:none; }
+.vision-result-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+.vr-item { background:var(--input); border-radius:7px; padding:8px 10px; }
+.vr-label { font-size:9px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+.vr-value { font-size:13px; font-weight:600; color:var(--text); margin-top:2px; }
+.confidence-bar { height:4px; background:rgba(138,143,170,0.12); border-radius:2px; margin-top:6px; overflow:hidden; }
+.confidence-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:2px; transition:width 1s ease; }
+.vision-note { font-size:10px; color:var(--muted); margin-bottom:10px; line-height:1.5; padding:6px 10px; background:rgba(138,143,170,0.05); border-radius:6px; border-left:2px solid rgba(201,168,76,0.3); }
+.vision-actions { display:flex; gap:6px; }
+.vision-action-btn { flex:1; padding:8px; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.2); border-radius:8px; color:var(--gold-light); font-size:11px; font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer; transition:all 0.2s; text-align:center; }
+.vision-action-btn:hover { background:rgba(201,168,76,0.15); }
+.vision-powered { font-size:10px; color:var(--muted); text-align:center; padding:6px 0; }
+.vision-powered span { color:var(--gold); }
+.ai-chat { flex:1; min-height:0; display:flex; flex-direction:column; }
+
 @media (min-width:481px) {
   #app { border-left:1px solid var(--border2); border-right:1px solid var(--border2); }
 }
@@ -366,8 +396,8 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
       <div class="portfolio-value-card">
         <div class="pv-label">Total Portfolio Value</div>
         <div class="pv-value" id="portfolioValue">$0</div>
-        <div class="pv-change up" id="portfolioChange">+$8,420 (+3.6%) today</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px;">4 positions • 3 natural • 1 lab-grown</div>
+        <div class="pv-change up" id="portfolioChange">+$12,840 (+3.9%) today</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">6 positions • 5 natural • 1 lab-grown</div>
       </div>
       <div class="holdings-list" id="holdingsList"></div>
       <div class="chart-card">
@@ -382,22 +412,22 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
         <div class="donut-card">
           <svg width="90" height="90" viewBox="0 0 90 90">
             <circle cx="45" cy="45" r="35" fill="none" stroke="rgba(138,143,170,0.1)" stroke-width="12"/>
-            <circle cx="45" cy="45" r="35" fill="none" stroke="#C9A84C" stroke-width="12" stroke-dasharray="154 66" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
-            <circle cx="45" cy="45" r="35" fill="none" stroke="#4CAF7D" stroke-width="12" stroke-dasharray="66 154" stroke-dashoffset="-154" transform="rotate(-90 45 45)"/>
-            <text x="45" y="49" text-anchor="middle" fill="#E8D5A3" font-size="11" font-family="DM Sans">70%</text>
+            <circle cx="45" cy="45" r="35" fill="none" stroke="#C9A84C" stroke-width="12" stroke-dasharray="165 55" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="35" fill="none" stroke="#4CAF7D" stroke-width="12" stroke-dasharray="55 165" stroke-dashoffset="-165" transform="rotate(-90 45 45)"/>
+            <text x="45" y="49" text-anchor="middle" fill="#E8D5A3" font-size="11" font-family="DM Sans">75%</text>
           </svg>
           <div class="donut-label">Natural</div>
-          <div class="donut-value">$168,000</div>
+          <div class="donut-value">~$255,000</div>
         </div>
         <div class="donut-card">
           <svg width="90" height="90" viewBox="0 0 90 90">
             <circle cx="45" cy="45" r="35" fill="none" stroke="rgba(138,143,170,0.1)" stroke-width="12"/>
-            <circle cx="45" cy="45" r="35" fill="none" stroke="#4CAF7D" stroke-width="12" stroke-dasharray="66 154" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
-            <circle cx="45" cy="45" r="35" fill="none" stroke="#8A8FAA" stroke-width="12" stroke-dasharray="154 66" stroke-dashoffset="-66" transform="rotate(-90 45 45)"/>
-            <text x="45" y="49" text-anchor="middle" fill="#4CAF7D" font-size="11" font-family="DM Sans">30%</text>
+            <circle cx="45" cy="45" r="35" fill="none" stroke="#4CAF7D" stroke-width="12" stroke-dasharray="55 165" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="35" fill="none" stroke="#8A8FAA" stroke-width="12" stroke-dasharray="165 55" stroke-dashoffset="-55" transform="rotate(-90 45 45)"/>
+            <text x="45" y="49" text-anchor="middle" fill="#4CAF7D" font-size="11" font-family="DM Sans">25%</text>
           </svg>
           <div class="donut-label">Lab-Grown</div>
-          <div class="donut-value">$72,000</div>
+          <div class="donut-value">~$85,000</div>
         </div>
       </div>
     </div>
@@ -413,6 +443,51 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 
     <!-- AI ADVISOR PAGE -->
     <div class="page" id="page-ai">
+
+      <!-- VISION AI SECTION -->
+      <div class="vision-section">
+        <div class="vision-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          <span class="vision-title">Diamond Photo Analysis</span>
+          <span class="vision-badge">Vision AI</span>
+        </div>
+        <label class="vision-upload-btn" for="visionFileInput">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8">
+            <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+          </svg>
+          <div class="vision-upload-text">
+            <strong>Upload Diamond Photo</strong>
+            Tap to select image for AI grading analysis
+          </div>
+        </label>
+        <input type="file" id="visionFileInput" accept="image/*" style="display:none" onchange="runVisionAnalysis(this)">
+        <div class="vision-preview-box" id="visionPreview">
+          <img id="visionImg" src="" alt="Diamond preview">
+          <div class="scan-line" id="scanLine" style="display:none"></div>
+          <div class="vision-scanning-label" id="scanningLabel" style="display:none">IDT Vision AI scanning…</div>
+        </div>
+        <div class="vision-result-card" id="visionResult">
+          <div class="vision-result-grid">
+            <div class="vr-item"><div class="vr-label">Est. Shape</div><div class="vr-value" id="vr-shape">Round</div></div>
+            <div class="vr-item"><div class="vr-label">Est. Cut</div><div class="vr-value" id="vr-cut">Excellent</div></div>
+            <div class="vr-item"><div class="vr-label">Est. Colour</div><div class="vr-value" id="vr-color">D–E</div></div>
+            <div class="vr-item"><div class="vr-label">Est. Clarity</div><div class="vr-value" id="vr-clarity">VVS1–VS1</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Confidence Score: <span id="vr-confidence" style="color:var(--gold);font-weight:600;">92%</span></div>
+          <div class="confidence-bar"><div class="confidence-fill" id="vr-confbar" style="width:0%"></div></div>
+          <div class="vision-note" style="margin-top:8px;">AI estimate only — GIA/IGI certification recommended for trading purposes.</div>
+          <div class="vision-actions">
+            <button class="vision-action-btn" onclick="visionAddWatchlist()">+ Add to Watchlist</button>
+            <button class="vision-action-btn" onclick="showToast('Full analysis request sent to IDT grading desk')">Get Full Analysis</button>
+          </div>
+        </div>
+        <div class="vision-powered">Powered by <span>IDT Vision AI</span></div>
+      </div>
+
       <div class="ai-chat">
         <div class="chat-messages" id="chatMessages">
           <div class="chat-intro" id="chatIntro">
@@ -529,20 +604,28 @@ const ANTHROPIC_API_KEY = '__ANTHROPIC_API_KEY__';
 // DATA
 // ============================================================
 const DIAMONDS = [
-  { id:'r1', shape:'Round', name:'Round Brilliant', carat:1, color:'D', clarity:'VVS1', cut:'Excellent', type:'natural', basePrice:12400, certBody:'GIA', origin:'Botswana', depth:'61.5%', table:'57%', polish:'Excellent' },
-  { id:'o3', shape:'Oval', name:'Oval Cut', carat:3, color:'E', clarity:'VS1', cut:'Excellent', type:'natural', basePrice:9800, certBody:'GIA', origin:'South Africa', depth:'62.1%', table:'58%', polish:'Very Good' },
-  { id:'e5', shape:'Emerald', name:'Emerald Cut', carat:5, color:'F', clarity:'VVS2', cut:'Excellent', type:'natural', basePrice:8200, certBody:'IGI', origin:'Russia', depth:'60.8%', table:'64%', polish:'Excellent' },
-  { id:'p2', shape:'Princess', name:'Princess Cut', carat:2, color:'G', clarity:'VS2', cut:'Very Good', type:'lab', basePrice:4600, certBody:'IGI', origin:'Lab-Grown', depth:'72.4%', table:'73%', polish:'Very Good' },
-  { id:'c4', shape:'Cushion', name:'Cushion Brilliant', carat:4, color:'D', clarity:'IF', cut:'Excellent', type:'natural', basePrice:15800, certBody:'GIA', origin:'Canada', depth:'63.2%', table:'61%', polish:'Excellent' },
-  { id:'pe15', shape:'Pear', name:'Pear Shape', carat:1.5, color:'H', clarity:'SI1', cut:'Very Good', type:'lab', basePrice:3200, certBody:'IGI', origin:'Lab-Grown', depth:'61.0%', table:'56%', polish:'Very Good' }
+  { id:'r1',   shape:'Round',    name:'Round Brilliant',   carat:1,   color:'D', clarity:'VVS1', cut:'Excellent',  type:'natural', basePrice:12400, certBody:'GIA', origin:'Botswana',     depth:'61.5%', table:'57%', polish:'Excellent' },
+  { id:'o3',   shape:'Oval',     name:'Oval Cut',          carat:3,   color:'E', clarity:'VS1',  cut:'Excellent',  type:'natural', basePrice:9800,  certBody:'GIA', origin:'South Africa', depth:'62.1%', table:'58%', polish:'Very Good' },
+  { id:'e5',   shape:'Emerald',  name:'Emerald Cut',       carat:5,   color:'F', clarity:'VVS2', cut:'Excellent',  type:'natural', basePrice:8200,  certBody:'IGI', origin:'Russia',       depth:'60.8%', table:'64%', polish:'Excellent' },
+  { id:'p2',   shape:'Princess', name:'Princess Cut',      carat:2,   color:'G', clarity:'VS2',  cut:'Very Good',  type:'lab',     basePrice:4600,  certBody:'IGI', origin:'Lab-Grown',    depth:'72.4%', table:'73%', polish:'Very Good' },
+  { id:'c4',   shape:'Cushion',  name:'Cushion Brilliant', carat:4,   color:'D', clarity:'IF',   cut:'Excellent',  type:'natural', basePrice:15800, certBody:'GIA', origin:'Canada',       depth:'63.2%', table:'61%', polish:'Excellent' },
+  { id:'pe15', shape:'Pear',     name:'Pear Shape',        carat:1.5, color:'H', clarity:'SI1',  cut:'Very Good',  type:'lab',     basePrice:3200,  certBody:'IGI', origin:'Lab-Grown',    depth:'61.0%', table:'56%', polish:'Very Good' },
+  { id:'as2',  shape:'Asscher',  name:'Asscher Cut',       carat:2,   color:'F', clarity:'VS1',  cut:'Excellent',  type:'natural', basePrice:7400,  certBody:'GIA', origin:'South Africa', depth:'64.0%', table:'67%', polish:'Excellent' },
+  { id:'ra3',  shape:'Radiant',  name:'Radiant Cut',       carat:3,   color:'G', clarity:'VS2',  cut:'Very Good',  type:'natural', basePrice:6800,  certBody:'IGI', origin:'Botswana',     depth:'63.5%', table:'68%', polish:'Very Good' },
+  { id:'ht1',  shape:'Heart',    name:'Heart Shape',       carat:1,   color:'E', clarity:'VVS2', cut:'Excellent',  type:'natural', basePrice:11200, certBody:'GIA', origin:'Angola',       depth:'62.8%', table:'55%', polish:'Excellent' },
+  { id:'mq25', shape:'Marquise', name:'Marquise Cut',      carat:2.5, color:'D', clarity:'VVS1', cut:'Excellent',  type:'natural', basePrice:13600, certBody:'GIA', origin:'Namibia',      depth:'60.2%', table:'56%', polish:'Excellent' },
+  { id:'rl05', shape:'Round',    name:'Round Brilliant',   carat:0.5, color:'F', clarity:'VS1',  cut:'Excellent',  type:'lab',     basePrice:1200,  certBody:'IGI', origin:'Lab-Grown',    depth:'61.2%', table:'57%', polish:'Excellent' },
+  { id:'o5',   shape:'Oval',     name:'Oval Cut',          carat:5,   color:'D', clarity:'IF',   cut:'Excellent',  type:'natural', basePrice:22000, certBody:'GIA', origin:'South Africa', depth:'61.8%', table:'57%', polish:'Excellent' }
 ];
 
-const WATCHLIST_DIAMONDS = ['r1','o3','c4','p2'];
+const WATCHLIST_DIAMONDS = ['r1','o3','c4','mq25','ht1','as2'];
 const PORTFOLIO = [
-  { id:'r1', qty:3, avgBuy:11200 },
-  { id:'o3', qty:1, avgBuy:9200 },
-  { id:'c4', qty:1, avgBuy:14800 },
-  { id:'p2', qty:2, avgBuy:4200 }
+  { id:'r1',  qty:3, avgBuy:11200 },
+  { id:'o3',  qty:1, avgBuy:9200 },
+  { id:'c4',  qty:1, avgBuy:14800 },
+  { id:'p2',  qty:2, avgBuy:4200 },
+  { id:'o5',  qty:1, avgBuy:20000 },
+  { id:'as2', qty:2, avgBuy:6800 }
 ];
 
 // Live prices (updated by interval)
@@ -551,7 +634,13 @@ const priceHistory = {}; // {id: [prices]}
 const priceChanges = {}; // 24h change %
 DIAMONDS.forEach(d => {
   prices[d.id] = d.basePrice;
-  priceHistory[d.id] = Array.from({length:30}, (_,i) => d.basePrice * (1 + (Math.random()-0.5)*0.08 - (29-i)*0.001));
+  priceHistory[d.id] = Array.from({length:60}, (_,i) => {
+    const trend = i * 0.0008;
+    const cycle = Math.sin(i * 0.18) * 0.012;
+    const dip = (i===15||i===32||i===48) ? -0.04 : 0;
+    const noise = (Math.random()-0.48) * 0.018;
+    return Math.round(d.basePrice * (1 + trend + cycle + dip + noise));
+  });
   priceChanges[d.id] = (Math.random()*4-1.5);
 });
 
@@ -662,7 +751,7 @@ function buildCards() {
     if(activeFilter==='natural') return d.type==='natural';
     if(activeFilter==='lab') return d.type==='lab';
     if(activeFilter==='round') return d.shape==='Round';
-    if(activeFilter==='fancy') return ['Oval','Emerald','Princess','Cushion','Pear'].includes(d.shape);
+    if(activeFilter==='fancy') return ['Oval','Emerald','Princess','Cushion','Pear','Asscher','Radiant','Heart','Marquise'].includes(d.shape);
     return true;
   });
   grid.innerHTML = filtered.map(d => {
@@ -1028,7 +1117,7 @@ function showTyping() {
 
 async function callClaude(userMsg) {
   showTyping();
-  const systemPrompt = `You are an expert diamond market advisor for IDT — International Diamond Trade. You have deep knowledge of the 4Cs (Cut, Colour, Clarity, Carat), diamond pricing, GIA/IGI certification, natural vs lab-grown markets, Kimberley Process, investment-grade diamonds, and global trade routes (Antwerp, Dubai, Mumbai, London). The user's mock portfolio: 3 Round naturals (D-F, VVS), total value $240K. Give concise, expert, actionable advice. Always mention specific price ranges and market context. Respond in 3-5 sentences max.`;
+  const systemPrompt = `You are an expert diamond market advisor for IDT — International Diamond Trade, the world's premier B2B diamond exchange. You have deep knowledge of: the 4Cs grading system (Cut, Colour D-Z scale, Clarity FL-I3, Carat weight), GIA/IGI/HRD certification, natural vs lab-grown market dynamics (lab-grown prices down 40% YoY), Kimberley Process compliance, investment-grade diamonds (D-F, FL-VVS, 1ct+), global trade hubs (Antwerp, Dubai, Mumbai, Hong Kong, London Hatton Garden), current market trends (Round brilliants holding value, fancy shapes growing 15% YoY, lab-grown market expanding), price benchmarks (Round 1ct D/VVS1 GIA: $12,000-14,000, Oval 3ct E/VS1: $9,000-11,000, Cushion 4ct D/IF: $15,000-18,000). User portfolio: 6 positions worth ~$340K (3 Round naturals D-F VVS, 1 Oval 5ct D/IF, 2 Asscher F/VS1). Give concise, expert, actionable advice with specific price ranges. Be confident and direct like a senior diamond trader. 3-5 sentences max.`;
 
   const messages = chatHistory.filter(m=>m.role!=='assistant'||true).slice(-10);
 
@@ -1099,7 +1188,7 @@ function updatePrices() {
     const delta = (Math.random()-0.5)*0.01;
     prices[d.id] = +(prices[d.id] * (1+delta)).toFixed(0);
     priceHistory[d.id].push(prices[d.id]);
-    if(priceHistory[d.id].length>30) priceHistory[d.id].shift();
+    if(priceHistory[d.id].length>60) priceHistory[d.id].shift();
     priceChanges[d.id] += (Math.random()-0.5)*0.1;
     priceChanges[d.id] = Math.max(-8, Math.min(8, priceChanges[d.id]));
   });
@@ -1122,6 +1211,76 @@ function updatePrices() {
   }
   if(activePage==='page-watchlist') buildWatchlist();
   buildTicker();
+}
+
+// ============================================================
+// VISION AI SIMULATOR
+// ============================================================
+const VISION_SHAPES = ['Round Brilliant','Oval Cut','Emerald Cut','Cushion Brilliant','Princess Cut','Pear Shape','Radiant Cut','Asscher Cut','Marquise Cut','Heart Shape'];
+const VISION_COLORS = ['D','D–E','E','E–F','F'];
+const VISION_CLARITIES = ['VVS1','VVS1–VS1','VS1','VVS2','VS1–VS2'];
+const VISION_CUTS = ['Excellent','Excellent','Excellent','Very Good'];
+
+function runVisionAnalysis(input) {
+  if(!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('visionPreview');
+    const img = document.getElementById('visionImg');
+    img.src = e.target.result;
+    preview.style.display = 'block';
+    document.getElementById('visionResult').style.display = 'none';
+
+    const scanLine = document.getElementById('scanLine');
+    const scanLabel = document.getElementById('scanningLabel');
+    scanLine.style.display = 'block';
+    scanLabel.style.display = 'block';
+    // Restart animation
+    scanLine.style.animation = 'none';
+    scanLine.offsetHeight;
+    scanLine.style.animation = 'scanDown 1.5s linear 3';
+
+    setTimeout(() => {
+      scanLine.style.display = 'none';
+      scanLabel.style.display = 'none';
+      showVisionResult(file.name);
+    }, 4600);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showVisionResult(filename) {
+  const name = filename.toLowerCase();
+  let shape = VISION_SHAPES[Math.floor(Math.random()*VISION_SHAPES.length)];
+  if(name.includes('round')) shape='Round Brilliant';
+  else if(name.includes('oval')) shape='Oval Cut';
+  else if(name.includes('cushion')) shape='Cushion Brilliant';
+  else if(name.includes('emerald')) shape='Emerald Cut';
+  else if(name.includes('princess')) shape='Princess Cut';
+  else if(name.includes('pear')) shape='Pear Shape';
+
+  const color = VISION_COLORS[Math.floor(Math.random()*VISION_COLORS.length)];
+  const clarity = VISION_CLARITIES[Math.floor(Math.random()*VISION_CLARITIES.length)];
+  const cut = VISION_CUTS[Math.floor(Math.random()*VISION_CUTS.length)];
+  const confidence = Math.floor(Math.random()*9+87);
+
+  document.getElementById('vr-shape').textContent = shape;
+  document.getElementById('vr-cut').textContent = cut;
+  document.getElementById('vr-color').textContent = color;
+  document.getElementById('vr-clarity').textContent = clarity;
+  document.getElementById('vr-confidence').textContent = confidence+'%';
+
+  const result = document.getElementById('visionResult');
+  result.style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('vr-confbar').style.width = confidence+'%';
+  }, 100);
+}
+
+function visionAddWatchlist() {
+  const shape = document.getElementById('vr-shape').textContent;
+  showToast(`${shape} added to Watchlist`);
 }
 
 // ============================================================
