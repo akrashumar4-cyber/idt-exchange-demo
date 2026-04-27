@@ -266,8 +266,8 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 /* VISION AI */
 .content.ai-mode { overflow:hidden; }
 #page-ai.active { display:flex; flex-direction:column; height:100%; padding-bottom:0; }
-.vision-section { flex-shrink:0; padding:10px 16px 0; border-bottom:1px solid var(--border2); max-height:160px; overflow:hidden; transition:max-height 0.4s ease; }
-.vision-section.expanded { max-height:520px; }
+.vision-section { flex-shrink:0; padding:10px 16px 0; border-bottom:1px solid var(--border2); max-height:160px; overflow:hidden; transition:max-height 0.5s ease; }
+.vision-section.expanded { max-height:640px; overflow-y:auto; }
 .vision-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
 .vision-title { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:var(--gold-light); }
 .vision-badge { font-size:9px; text-transform:uppercase; letter-spacing:0.1em; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.25); color:var(--gold); padding:2px 7px; border-radius:10px; }
@@ -1104,7 +1104,7 @@ function appendAiMsg(text) {
   if(typing) typing.remove();
   const el = document.createElement('div');
   el.className = 'message ai';
-  el.innerHTML = `<div class="ai-label">IDT AI Advisor</div><div class="msg-bubble">${escHtml(text)}</div><div class="msg-time">${fmtTime(new Date())}</div>`;
+  el.innerHTML = `<div class="ai-label">IDT AI Advisor</div><div class="msg-bubble">${renderMarkdown(text)}</div><div class="msg-time">${fmtTime(new Date())}</div>`;
   container.appendChild(el);
   container.scrollTop = container.scrollHeight;
   chatHistory.push({role:'assistant', content:text});
@@ -1158,6 +1158,12 @@ async function callClaude(userMsg) {
 
 function escHtml(t) {
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+function renderMarkdown(t) {
+  return escHtml(t)
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--gold-light)">$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>');
 }
 
 // ============================================================
@@ -1280,9 +1286,13 @@ function showVisionResult(filename) {
 
   const result = document.getElementById('visionResult');
   result.style.display = 'block';
-  setTimeout(() => {
-    document.getElementById('vr-confbar').style.width = confidence+'%';
-  }, 100);
+  // Force reflow so CSS transition on confidence bar fires correctly
+  result.offsetHeight;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('vr-confbar').style.width = confidence+'%';
+    });
+  });
 }
 
 function visionAddWatchlist() {
