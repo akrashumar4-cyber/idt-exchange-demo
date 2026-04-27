@@ -266,8 +266,8 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 /* VISION AI */
 .content.ai-mode { overflow:hidden; }
 #page-ai.active { display:flex; flex-direction:column; height:100%; padding-bottom:0; }
-.vision-section { flex-shrink:0; padding:10px 16px 0; border-bottom:1px solid var(--border2); max-height:160px; overflow:hidden; transition:max-height 0.5s ease; }
-.vision-section.expanded { max-height:640px; overflow-y:auto; }
+.vision-section { flex-shrink:0; padding:10px 16px 0; border-bottom:1px solid var(--border2); max-height:158px; overflow-y:hidden; transition:max-height 0.4s ease; }
+.vision-section.expanded { max-height:420px; overflow-y:auto; }
 .vision-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
 .vision-title { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:var(--gold-light); }
 .vision-badge { font-size:9px; text-transform:uppercase; letter-spacing:0.1em; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.25); color:var(--gold); padding:2px 7px; border-radius:10px; }
@@ -275,12 +275,12 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
 .vision-upload-btn:hover { background:rgba(201,168,76,0.12); border-color:rgba(201,168,76,0.5); }
 .vision-upload-text { font-size:12px; color:var(--muted); }
 .vision-upload-text strong { color:var(--gold-light); display:block; font-size:13px; margin-bottom:1px; }
-.vision-preview-box { position:relative; border-radius:10px; overflow:hidden; background:var(--input); margin-bottom:10px; display:none; }
+.vision-preview-box { position:relative; border-radius:10px; overflow:hidden; background:var(--input); margin-bottom:10px; }
 .vision-preview-box img { width:100%; height:130px; object-fit:cover; display:block; }
 .scan-line { position:absolute; top:0; left:0; width:100%; height:3px; background:linear-gradient(90deg, transparent, rgba(201,168,76,0.9), transparent); box-shadow:0 0 12px rgba(201,168,76,0.6); animation:scanDown 1.5s linear 3; }
 @keyframes scanDown { 0%{top:0;} 100%{top:calc(100% - 3px);} }
 .vision-scanning-label { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); background:rgba(6,8,15,0.85); border:1px solid rgba(201,168,76,0.3); color:var(--gold); font-size:11px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap; }
-.vision-result-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px; display:none; }
+.vision-result-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px; }
 .vision-result-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
 .vr-item { background:var(--input); border-radius:7px; padding:8px 10px; }
 .vr-label { font-size:9px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
@@ -467,12 +467,12 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'D
           </div>
         </label>
         <input type="file" id="visionFileInput" accept="image/*" style="display:none" onchange="runVisionAnalysis(this)">
-        <div class="vision-preview-box" id="visionPreview">
+        <div class="vision-preview-box" id="visionPreview" style="display:none">
           <img id="visionImg" src="" alt="Diamond preview">
           <div class="scan-line" id="scanLine" style="display:none"></div>
           <div class="vision-scanning-label" id="scanningLabel" style="display:none">IDT Vision AI scanning…</div>
         </div>
-        <div class="vision-result-card" id="visionResult">
+        <div class="vision-result-card" id="visionResult" style="display:none">
           <div class="vision-result-grid">
             <div class="vr-item"><div class="vr-label">Est. Shape</div><div class="vr-value" id="vr-shape">Round</div></div>
             <div class="vr-item"><div class="vr-label">Est. Cut</div><div class="vr-value" id="vr-cut">Excellent</div></div>
@@ -1238,61 +1238,47 @@ function runVisionAnalysis(input) {
   const file = input.files[0];
   const reader = new FileReader();
   reader.onload = e => {
-    const preview = document.getElementById('visionPreview');
-    const img = document.getElementById('visionImg');
-    img.src = e.target.result;
-    preview.style.display = 'block';
+    // 1. Show image immediately
+    document.getElementById('visionImg').src = e.target.result;
+    document.getElementById('visionPreview').style.display = 'block';
     document.getElementById('visionResult').style.display = 'none';
+    document.getElementById('vr-confbar').style.width = '0%';
+
+    // 2. Expand section and show scan label
     document.getElementById('visionSection').classList.add('expanded');
+    document.getElementById('scanLine').style.display = 'block';
+    document.getElementById('scanningLabel').style.display = 'block';
 
-    const scanLine = document.getElementById('scanLine');
-    const scanLabel = document.getElementById('scanningLabel');
-    scanLine.style.display = 'block';
-    scanLabel.style.display = 'block';
-    // Restart animation
-    scanLine.style.animation = 'none';
-    scanLine.offsetHeight;
-    scanLine.style.animation = 'scanDown 1.5s linear 3';
-
+    // 3. After 3 seconds, hide scan UI and show results
     setTimeout(() => {
-      scanLine.style.display = 'none';
-      scanLabel.style.display = 'none';
-      showVisionResult(file.name);
-    }, 4600);
+      document.getElementById('scanLine').style.display = 'none';
+      document.getElementById('scanningLabel').style.display = 'none';
+      showVisionResult();
+    }, 3000);
   };
   reader.readAsDataURL(file);
 }
 
-function showVisionResult(filename) {
-  const name = filename.toLowerCase();
-  let shape = VISION_SHAPES[Math.floor(Math.random()*VISION_SHAPES.length)];
-  if(name.includes('round')) shape='Round Brilliant';
-  else if(name.includes('oval')) shape='Oval Cut';
-  else if(name.includes('cushion')) shape='Cushion Brilliant';
-  else if(name.includes('emerald')) shape='Emerald Cut';
-  else if(name.includes('princess')) shape='Princess Cut';
-  else if(name.includes('pear')) shape='Pear Shape';
-
-  const color = VISION_COLORS[Math.floor(Math.random()*VISION_COLORS.length)];
-  const clarity = VISION_CLARITIES[Math.floor(Math.random()*VISION_CLARITIES.length)];
-  const cut = VISION_CUTS[Math.floor(Math.random()*VISION_CUTS.length)];
-  const confidence = Math.floor(Math.random()*9+87);
-
-  document.getElementById('vr-shape').textContent = shape;
-  document.getElementById('vr-cut').textContent = cut;
-  document.getElementById('vr-color').textContent = color;
-  document.getElementById('vr-clarity').textContent = clarity;
-  document.getElementById('vr-confidence').textContent = confidence+'%';
+function showVisionResult() {
+  document.getElementById('vr-shape').textContent = 'Round Brilliant';
+  document.getElementById('vr-cut').textContent = 'Excellent';
+  document.getElementById('vr-color').textContent = 'D';
+  document.getElementById('vr-clarity').textContent = 'VVS1';
+  document.getElementById('vr-confidence').textContent = '94%';
 
   const result = document.getElementById('visionResult');
   result.style.display = 'block';
-  // Force reflow so CSS transition on confidence bar fires correctly
-  result.offsetHeight;
+
+  // Trigger confidence bar animation after paint
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      document.getElementById('vr-confbar').style.width = confidence+'%';
+      document.getElementById('vr-confbar').style.width = '94%';
     });
   });
+
+  // Scroll vision section to show result card
+  const section = document.getElementById('visionSection');
+  setTimeout(() => { section.scrollTop = section.scrollHeight; }, 50);
 }
 
 function visionAddWatchlist() {
